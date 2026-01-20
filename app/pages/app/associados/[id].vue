@@ -24,6 +24,7 @@ const state = reactive({
   quote: 0,
   photo: '',
   status: 'ativo',
+  registerNumber: '',
   
   qualificacao: {
       cpf: '',
@@ -61,6 +62,7 @@ watchEffect(() => {
         state.quote = data.quote
         state.photo = data.photo || ''
         state.status = data.status || 'ativo'
+        state.registerNumber = data.registerNumber
         
         if (data.qualificacao) {
             state.qualificacao.cpf = data.qualificacao.cpf || ''
@@ -209,6 +211,9 @@ const save = async () => {
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <UFormField label="Nome Completo" required>
                   <UInput v-model="state.name" class="w-full" />
+              </UFormField>
+               <UFormField label="Matrícula" required>
+                  <UInput v-model="state.registerNumber" class="w-full" />
               </UFormField>
               <UFormField label="Tipo de Associado" required>
                   <USelect v-model="state.type" :items="['Fundador', 'Sócio', 'Honorário', 'Benemérito']" class="w-full" />

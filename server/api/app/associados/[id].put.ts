@@ -19,6 +19,24 @@ export default defineEventHandler(async (event) => {
     entryDate: body.entryDate ? new Date(body.entryDate) : undefined,
     exitDate: body.exitDate ? new Date(body.exitDate) : null, // Handle exitDate
     photo: body.photo,
+    registerNumber: body.registerNumber
+  }
+
+  // Check for duplicate registerNumber if it's being changed
+  if (body.registerNumber) {
+      const existingAssociate = await prisma.associado.findFirst({
+          where: {
+              associacaoId: user.associacaoId,
+              registerNumber: body.registerNumber,
+              NOT: {
+                  id: id
+              }
+          }
+      })
+
+      if (existingAssociate) {
+          throw createError({ statusCode: 400, statusMessage: 'Já existe um associado com este número de matrícula.' })
+      }
   }
 
   // Update Relations if provided
