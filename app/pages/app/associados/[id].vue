@@ -20,7 +20,9 @@ const state = reactive({
   description: '',
   type: 'Sócio',
   entryDate: '',
+  entryDate: '',
   quote: 0,
+  photo: '',
   status: 'ativo',
   
   qualificacao: {
@@ -57,6 +59,7 @@ watchEffect(() => {
         state.type = data.type
         state.entryDate = data.entryDate ? new Date(data.entryDate).toISOString().split('T')[0] : ''
         state.quote = data.quote
+        state.photo = data.photo || ''
         state.status = data.status || 'ativo'
         
         if (data.qualificacao) {
@@ -112,6 +115,17 @@ const addAddress = () => {
 }
 const removeAddress = (index: number) => {
     state.enderecos.splice(index, 1)
+}
+
+const onFileChange = (e: any) => {
+    const file = e.target.files[0]
+    if (file) {
+        const reader = new FileReader()
+        reader.onload = (e) => {
+            state.photo = e.target?.result as string
+        }
+        reader.readAsDataURL(file)
+    }
 }
 
 const save = async () => {
@@ -179,6 +193,19 @@ const save = async () => {
       <!-- Dados Básicos -->
       <UCard>
           <template #header><h3 class="font-bold">Dados Básicos</h3></template>
+          <div class="flex gap-4 items-start mb-4">
+               <UAvatar :src="state.photo" size="3xl" alt="Foto do Associado" />
+               <div class="flex-1">
+                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Foto do Associado</label>
+                   <input type="file" @change="onFileChange" accept="image/*" class="block w-full text-sm text-gray-500
+      file:mr-4 file:py-2 file:px-4
+      file:rounded-full file:border-0
+      file:text-sm file:font-semibold
+      file:bg-primary-50 file:text-primary-700
+      hover:file:bg-primary-100
+    "/>
+               </div>
+          </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <UFormField label="Nome Completo" required>
                   <UInput v-model="state.name" class="w-full" />

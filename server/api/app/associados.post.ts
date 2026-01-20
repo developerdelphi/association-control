@@ -57,6 +57,8 @@ export default defineEventHandler(async (event) => {
       status: body.status || 'ativo',
       quote: body.quote ? parseFloat(body.quote) : 0,
       
+      photo: body.photo,
+      
       // Creating related records if provided
       qualificacao: body.qualificacao ? {
         create: {
@@ -98,6 +100,7 @@ export default defineEventHandler(async (event) => {
           create: body.enderecos.map((e: any) => ({
               logradouro: e.logradouro,
               numero: e.numero,
+              complemento: e.complemento,
               bairro: e.bairro,
               cep: e.cep,
               cidade: e.cidade,

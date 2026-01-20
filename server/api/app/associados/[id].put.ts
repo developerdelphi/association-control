@@ -18,6 +18,7 @@ export default defineEventHandler(async (event) => {
     quote: body.quote ? parseFloat(body.quote) : undefined,
     entryDate: body.entryDate ? new Date(body.entryDate) : undefined,
     exitDate: body.exitDate ? new Date(body.exitDate) : null, // Handle exitDate
+    photo: body.photo,
   }
 
   // Update Relations if provided
@@ -103,6 +104,7 @@ export default defineEventHandler(async (event) => {
           create: body.enderecos.map((e: any) => ({
               logradouro: e.logradouro,
               numero: e.numero,
+              complemento: e.complemento,
               bairro: e.bairro,
               cep: e.cep,
               cidade: e.cidade,
