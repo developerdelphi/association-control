@@ -20,7 +20,6 @@ const state = reactive({
   description: '',
   type: 'Sócio',
   entryDate: '',
-  entryDate: '',
   quote: 0,
   photo: '',
   status: 'ativo',
@@ -182,6 +181,7 @@ const save = async () => {
         description="Atualize os dados do associado."
     >
         <template #actions>
+            <UButton label="Ficha Cadastral" icon="i-heroicons-document-text" color="gray" variant="ghost" :to="`/app/associados/${route.params.id}/ficha`" />
             <UButton label="Voltar" variant="ghost" to="/app/associados" />
         </template>
     </PageHeader>

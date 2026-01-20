@@ -94,6 +94,13 @@ const columns = [
     header: 'Ações',
     cell: ({ row }: any) => h('div', { class: 'flex gap-2' }, [
       h(UButton, {
+        icon: 'i-heroicons-document-text',
+        size: 'xs',
+        color: 'gray',
+        variant: 'ghost',
+        to: `/app/associados/${row.original.id}/ficha`
+      }),
+      h(UButton, {
         icon: 'i-lucide-edit',
         size: 'xs',
         color: 'gray',

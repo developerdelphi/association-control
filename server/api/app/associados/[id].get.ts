@@ -16,7 +16,14 @@ export default defineEventHandler(async (event) => {
         qualificacao: true,
         contatos: true,
         enderecos: true,
-        dadosBancarios: true
+        dadosBancarios: true,
+        associacao: {
+            select: {
+                name: true,
+                logo: true,
+                cnpj: true
+            }
+        }
     }
   })
 
