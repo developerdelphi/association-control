@@ -13,6 +13,22 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Dados básicos obrigatórios' })
   }
 
+  // Check for duplicate CPF in the same association
+  if (body.qualificacao?.cpf) {
+    const existingCpf = await prisma.qualificacao.findFirst({
+      where: {
+        cpf: body.qualificacao.cpf,
+        associado: {
+          associacaoId: user.associacaoId
+        }
+      }
+    })
+
+    if (existingCpf) {
+      throw createError({ statusCode: 400, statusMessage: 'CPF já cadastrado nesta associação.' })
+    }
+  }
+
   // Generate register number (Simple Sequential Logic)
   // Race conditions possible but acceptable for MVP
   const lastAssociate = await prisma.associado.findFirst({
@@ -48,6 +64,7 @@ export default defineEventHandler(async (event) => {
             rg: body.qualificacao.rg,
             birthdate: body.qualificacao.birthdate ? new Date(body.qualificacao.birthdate) : null,
             profession: body.qualificacao.profession,
+            sex: body.qualificacao.sex,
             nationality: body.qualificacao.nationality,
             civilStatus: body.qualificacao.civilStatus
         }

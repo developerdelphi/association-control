@@ -18,6 +18,25 @@ export default defineEventHandler(async (event) => {
   }
 
   const result = await prisma.$transaction(async (tx) => {
+    // Check for duplicate CPF in the same association (excluding self)
+    if (body.qualificacao?.cpf) {
+      const existingCpf = await tx.qualificacao.findFirst({
+        where: {
+          cpf: body.qualificacao.cpf,
+          associado: {
+            associacaoId: user.associacaoId
+          },
+          associadoId: {
+            not: id // Exclude current associate
+          }
+        }
+      })
+
+      if (existingCpf) {
+        throw createError({ statusCode: 400, statusMessage: 'CPF já cadastrado nesta associação.' })
+      }
+    }
+
     // 1. Update Basic Info
     const associado = await tx.associado.update({
       where: { id },
@@ -36,6 +55,7 @@ export default defineEventHandler(async (event) => {
                     rg: body.qualificacao.rg,
                     birthdate: body.qualificacao.birthdate ? new Date(body.qualificacao.birthdate) : null,
                     profession: body.qualificacao.profession,
+                    sex: body.qualificacao.sex,
                     nationality: body.qualificacao.nationality,
                     civilStatus: body.qualificacao.civilStatus
                 },
@@ -44,6 +64,7 @@ export default defineEventHandler(async (event) => {
                     rg: body.qualificacao.rg,
                     birthdate: body.qualificacao.birthdate ? new Date(body.qualificacao.birthdate) : null,
                     profession: body.qualificacao.profession,
+                    sex: body.qualificacao.sex,
                     nationality: body.qualificacao.nationality,
                     civilStatus: body.qualificacao.civilStatus
                 }
