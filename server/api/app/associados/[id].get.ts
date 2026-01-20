@@ -15,7 +15,8 @@ export default defineEventHandler(async (event) => {
     include: {
         qualificacao: true,
         contatos: true,
-        enderecos: true
+        enderecos: true,
+        dadosBancarios: true
     }
   })
 

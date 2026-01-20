@@ -66,8 +66,24 @@ export default defineEventHandler(async (event) => {
             profession: body.qualificacao.profession,
             sex: body.qualificacao.sex,
             nationality: body.qualificacao.nationality,
-            civilStatus: body.qualificacao.civilStatus
+            civilStatus: body.qualificacao.civilStatus,
+            // New Fields
+            isForeigner: body.qualificacao.isForeigner || false,
+            country: body.qualificacao.country || 'Brasil',
+            rne: body.qualificacao.rne,
+            fatherName: body.qualificacao.fatherName,
+            motherName: body.qualificacao.motherName,
+            spouseName: body.qualificacao.spouseName,
         }
+      } : undefined,
+
+      dadosBancarios: body.dadosBancarios ? {
+          create: {
+              bdmDigitalAccount: body.dadosBancarios.bdmDigitalAccount,
+              bank: body.dadosBancarios.bank,
+              agency: body.dadosBancarios.agency,
+              accountNumber: body.dadosBancarios.accountNumber
+          }
       } : undefined,
 
       contatos: body.contatos && body.contatos.length ? {

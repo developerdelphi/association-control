@@ -1,110 +1,124 @@
 
 export default defineEventHandler(async (event) => {
   const user = requireAuth(event)
-  const id = getRouterParam(event, 'id')
-  const body = await readBody(event)
+  const id = event.context.params?.id
 
   if (!user.associacaoId) {
     throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
   }
 
-  // Ensure associate belongs to user's association
-  const existing = await prisma.associado.findFirst({
-    where: { id, associacaoId: user.associacaoId }
-  })
+  const body = await readBody(event)
 
-  if (!existing) {
-    throw createError({ statusCode: 404, statusMessage: 'Associado não encontrado' })
+  // Validate Update Logic (Optional: Check if associate allows update)
+
+  const updateData: any = {
+    name: body.name,
+    type: body.type,
+    status: body.status,
+    quote: body.quote ? parseFloat(body.quote) : undefined,
+    entryDate: body.entryDate ? new Date(body.entryDate) : undefined,
+    exitDate: body.exitDate ? new Date(body.exitDate) : null, // Handle exitDate
   }
 
-  const result = await prisma.$transaction(async (tx) => {
-    // Check for duplicate CPF in the same association (excluding self)
-    if (body.qualificacao?.cpf) {
-      const existingCpf = await tx.qualificacao.findFirst({
-        where: {
-          cpf: body.qualificacao.cpf,
-          associado: {
-            associacaoId: user.associacaoId
-          },
-          associadoId: {
-            not: id // Exclude current associate
+  // Update Relations if provided
+  // Prisma `upsert` or `update` for relations depends on strategy. 
+  // For simplicity using `upsert` where possible or separate queries if nested update is complex.
+
+  // Using nested update/upsert
+  if (body.qualificacao) {
+      updateData.qualificacao = {
+          upsert: {
+              create: {
+                  cpf: body.qualificacao.cpf,
+                  rg: body.qualificacao.rg,
+                  birthdate: body.qualificacao.birthdate ? new Date(body.qualificacao.birthdate) : null,
+                  profession: body.qualificacao.profession,
+                  sex: body.qualificacao.sex,
+                  nationality: body.qualificacao.nationality,
+                  civilStatus: body.qualificacao.civilStatus,
+                  isForeigner: body.qualificacao.isForeigner,
+                  country: body.qualificacao.country,
+                  rne: body.qualificacao.rne,
+                  fatherName: body.qualificacao.fatherName,
+                  motherName: body.qualificacao.motherName,
+                  spouseName: body.qualificacao.spouseName,
+              },
+              update: {
+                  cpf: body.qualificacao.cpf,
+                  rg: body.qualificacao.rg,
+                  birthdate: body.qualificacao.birthdate ? new Date(body.qualificacao.birthdate) : null,
+                  profession: body.qualificacao.profession,
+                  sex: body.qualificacao.sex,
+                  nationality: body.qualificacao.nationality,
+                  civilStatus: body.qualificacao.civilStatus,
+                  isForeigner: body.qualificacao.isForeigner,
+                  country: body.qualificacao.country,
+                  rne: body.qualificacao.rne,
+                  fatherName: body.qualificacao.fatherName,
+                  motherName: body.qualificacao.motherName,
+                  spouseName: body.qualificacao.spouseName,
+              }
           }
-        }
-      })
-
-      if (existingCpf) {
-        throw createError({ statusCode: 400, statusMessage: 'CPF já cadastrado nesta associação.' })
       }
-    }
+  }
 
-    // 1. Update Basic Info
-    const associado = await tx.associado.update({
-      where: { id },
-      data: {
-        name: body.name,
-        type: body.type,
-        entryDate: body.entryDate ? new Date(body.entryDate) : undefined,
-        status: body.status,
-        quote: body.quote ? parseFloat(body.quote) : 0,
-       
-        // Update Qualification (Upsert)
-        qualificacao: body.qualificacao ? {
-            upsert: {
-                create: {
-                    cpf: body.qualificacao.cpf,
-                    rg: body.qualificacao.rg,
-                    birthdate: body.qualificacao.birthdate ? new Date(body.qualificacao.birthdate) : null,
-                    profession: body.qualificacao.profession,
-                    sex: body.qualificacao.sex,
-                    nationality: body.qualificacao.nationality,
-                    civilStatus: body.qualificacao.civilStatus
-                },
-                update: {
-                    cpf: body.qualificacao.cpf,
-                    rg: body.qualificacao.rg,
-                    birthdate: body.qualificacao.birthdate ? new Date(body.qualificacao.birthdate) : null,
-                    profession: body.qualificacao.profession,
-                    sex: body.qualificacao.sex,
-                    nationality: body.qualificacao.nationality,
-                    civilStatus: body.qualificacao.civilStatus
-                }
-            }
-        } : undefined
+    if (body.dadosBancarios) {
+      updateData.dadosBancarios = {
+          upsert: {
+              create: {
+                  bdmDigitalAccount: body.dadosBancarios.bdmDigitalAccount,
+                  bank: body.dadosBancarios.bank,
+                  agency: body.dadosBancarios.agency,
+                  accountNumber: body.dadosBancarios.accountNumber
+              },
+              update: {
+                  bdmDigitalAccount: body.dadosBancarios.bdmDigitalAccount,
+                  bank: body.dadosBancarios.bank,
+                  agency: body.dadosBancarios.agency,
+                  accountNumber: body.dadosBancarios.accountNumber
+              }
+          }
       }
-    })
+  }
 
-    // 2. Refresh Contacts (Delete All + Create New)
-    await tx.contato.deleteMany({ where: { associadoId: id } })
-    if (body.contatos && body.contatos.length > 0) {
-        await tx.contato.createMany({
-            data: body.contatos.map((c: any) => ({
-                associadoId: id,
-                type: c.type,
-                value: c.value,
-                isPrimary: c.isPrimary || false
-            }))
-        })
-    }
+  // Handle Contacts and Addresses usually requires deleting old/updating specific.
+  // For MVP, we might implement specific add/remove logic or replace all (risky).
+  // Assuming frontend sends ALL contacts, we can deleteMany + createMany (simple sync)
+  // BUT `update` with `deleteMany` inside is safer.
+  
+  if (body.contatos) {
+      updateData.contatos = {
+          deleteMany: {},
+          create: body.contatos.map((c: any) => ({
+              type: c.type,
+              value: c.value,
+              isPrimary: c.isPrimary
+          }))
+      }
+  }
 
-    // 3. Refresh Addresses (Delete All + Create New)
-    await tx.endereco.deleteMany({ where: { associadoId: id } })
-    if (body.enderecos && body.enderecos.length > 0) {
-        await tx.endereco.createMany({
-            data: body.enderecos.map((e: any) => ({
-                associadoId: id,
-                logradouro: e.logradouro,
-                numero: e.numero,
-                bairro: e.bairro,
-                cep: e.cep,
-                cidade: e.cidade,
-                uf: e.uf,
-                isPrimary: e.isPrimary || false
-            }))
-        })
-    }
+  if (body.enderecos) {
+      updateData.enderecos = {
+          deleteMany: {},
+          create: body.enderecos.map((e: any) => ({
+              logradouro: e.logradouro,
+              numero: e.numero,
+              bairro: e.bairro,
+              cep: e.cep,
+              cidade: e.cidade,
+              uf: e.uf,
+              isPrimary: e.isPrimary
+          }))
+      }
+  }
 
-    return associado
+  const associado = await prisma.associado.update({
+    where: { 
+        id,
+        associacaoId: user.associacaoId 
+    },
+    data: updateData
   })
 
-  return result
+  return associado
 })

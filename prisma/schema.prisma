@@ -69,6 +69,7 @@ model Associado {
 
   associacao     Associacao    @relation(fields: [associacaoId], references: [id])
   qualificacao   Qualificacao?
+  dadosBancarios DadosBancarios?
   contatos       Contato[]
   enderecos      Endereco[]
   pagamentos     Pagamento[]
@@ -87,6 +88,12 @@ model Qualificacao {
   nationality String?
   profession  String?
   sex         String?
+  
+  // Foreigner Fields
+  isForeigner Boolean   @default(false) @map("is_foreigner")
+  country     String    @default("Brasil")
+  rne         String?
+
   fatherName  String?   @map("father_name")
   motherName  String?   @map("mother_name")
   spouseName  String?   @map("spouse_name")
@@ -97,6 +104,24 @@ model Qualificacao {
   associado   Associado @relation(fields: [associadoId], references: [id])
 
   @@map("qualificacao")
+}
+
+model DadosBancarios {
+  id                String   @id @default(uuid())
+  associadoId       String   @unique @map("associado_id")
+  
+  bdmDigitalAccount String?  @map("bdm_digital_account") // Email validation
+  bank              String?
+  agency            String?
+  accountNumber     String?  @map("account_number")
+  
+  status            String   @default("ativo")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  associado         Associado @relation(fields: [associadoId], references: [id])
+  
+  @@map("dados_bancarios")
 }
 
 model Contato {

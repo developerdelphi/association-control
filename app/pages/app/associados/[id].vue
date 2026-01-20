@@ -29,7 +29,20 @@ const state = reactive({
       birthdate: '',
       profession: '',
       nationality: 'Brasileira',
-      civilStatus: 'Solteiro(a)'
+      civilStatus: 'Solteiro(a)',
+      isForeigner: false,
+      country: 'Brasil',
+      rne: '',
+      fatherName: '',
+      motherName: '',
+      spouseName: ''
+  },
+  
+  dadosBancarios: {
+      bdmDigitalAccount: '',
+      bank: '',
+      agency: '',
+      accountNumber: ''
   },
   
   contatos: [] as any[],
@@ -54,6 +67,19 @@ watchEffect(() => {
             state.qualificacao.sex = data.qualificacao.sex || ''
             state.qualificacao.nationality = data.qualificacao.nationality || 'Brasileira'
             state.qualificacao.civilStatus = data.qualificacao.civilStatus || 'Solteiro(a)'
+            state.qualificacao.isForeigner = data.qualificacao.isForeigner || false
+            state.qualificacao.country = data.qualificacao.country || 'Brasil'
+            state.qualificacao.rne = data.qualificacao.rne || ''
+            state.qualificacao.fatherName = data.qualificacao.fatherName || ''
+            state.qualificacao.motherName = data.qualificacao.motherName || ''
+            state.qualificacao.spouseName = data.qualificacao.spouseName || ''
+        }
+        
+        if (data.dadosBancarios) {
+            state.dadosBancarios.bdmDigitalAccount = data.dadosBancarios.bdmDigitalAccount || ''
+            state.dadosBancarios.bank = data.dadosBancarios.bank || ''
+            state.dadosBancarios.agency = data.dadosBancarios.agency || ''
+            state.dadosBancarios.accountNumber = data.dadosBancarios.accountNumber || ''
         }
         
         if (data.contatos) {
@@ -103,6 +129,11 @@ const save = async () => {
   if (state.entryDate && state.entryDate > today) {
      toast.add({ title: 'Erro', description: 'Data de admissão não pode ser futura', color: 'error' })
      return
+  }
+  
+  if (state.exitDate && state.exitDate > today) {
+      toast.add({ title: 'Erro', description: 'Data de desligamento não pode ser futura', color: 'error' })
+      return
   }
   if (state.qualificacao.birthdate && state.qualificacao.birthdate > today) {
      toast.add({ title: 'Erro', description: 'Data de nascimento não pode ser futura', color: 'error' })
@@ -161,6 +192,9 @@ const save = async () => {
               <UFormField label="Quota">
                   <UInput v-model="state.quote" type="number" step="0.01" class="w-full" />
               </UFormField>
+              <UFormField label="Data de Desligamento">
+                  <UInput v-model="state.exitDate" type="date" :max="new Date().toISOString().split('T')[0]" class="w-full" />
+              </UFormField>
               <UFormField label="Status" required>
                   <USelect v-model="state.status" :items="['ativo', 'inativo', 'pendente', 'suspenso']" class="w-full" />
               </UFormField>
@@ -186,8 +220,35 @@ const save = async () => {
               <UFormField label="Profissão">
                     <UInput v-model="state.qualificacao.profession" class="w-full" />
               </UFormField>
-              <UFormField label="Nacionalidade">
+              
+              <!-- Nacionalidade e Estrangeiro -->
+              <div class="flex gap-4">
+                 <UFormField label="Nacionalidade" class="flex-1">
                     <UInput v-model="state.qualificacao.nationality" class="w-full" />
+                 </UFormField>
+                 <UFormField label="Estrangeiro?" class="w-auto flex items-end pb-2">
+                      <UCheckbox v-model="state.qualificacao.isForeigner" />
+                  </UFormField>
+              </div>
+              
+              <UFormField label="País de Origem" v-if="state.qualificacao.isForeigner">
+                  <UInput v-model="state.qualificacao.country" class="w-full" />
+              </UFormField>
+              
+               <UFormField label="RNE" v-if="state.qualificacao.isForeigner">
+                  <UInput v-model="state.qualificacao.rne" class="w-full" />
+              </UFormField>
+
+              <UFormField label="Nome do Pai">
+                    <UInput v-model="state.qualificacao.fatherName" class="w-full" />
+              </UFormField>
+              
+               <UFormField label="Nome da Mãe">
+                    <UInput v-model="state.qualificacao.motherName" class="w-full" />
+              </UFormField>
+              
+              <UFormField label="Nome do Cônjuge">
+                    <UInput v-model="state.qualificacao.spouseName" class="w-full" />
               </UFormField>
               <UFormField label="Estado Civil">
                     <USelect v-model="state.qualificacao.civilStatus" :items="['Solteiro(a)', 'Casado(a)', 'Divorciado(a)', 'Viúvo(a)', 'União Estável']" class="w-full" />
@@ -268,6 +329,28 @@ const save = async () => {
               </div>
           </div>
           <p v-if="state.enderecos.length === 0" class="text-gray-400 text-sm italic">Nenhum endereço adicionado.</p>
+      </UCard>
+
+       <!-- Dados Bancários -->
+      <UCard>
+          <template #header><h3 class="font-bold">Dados Bancários</h3></template>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <UFormField label="Conta BDM Digital (Email)" class="md:col-span-3">
+                  <UInput v-model="state.dadosBancarios.bdmDigitalAccount" type="email" placeholder="email@exemplo.com" class="w-full" />
+              </UFormField>
+
+               <UFormField label="Banco">
+                  <UInput v-model="state.dadosBancarios.bank" class="w-full" />
+              </UFormField>
+              
+               <UFormField label="Agência">
+                  <UInput v-model="state.dadosBancarios.agency" class="w-full" />
+              </UFormField>
+              
+               <UFormField label="Conta Corrente">
+                  <UInput v-model="state.dadosBancarios.accountNumber" class="w-full" />
+              </UFormField>
+          </div>
       </UCard>
 
       <div class="flex justify-end gap-4 pb-8">
