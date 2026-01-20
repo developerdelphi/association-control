@@ -1,0 +1,161 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Associacao {
+  id              String           @id @default(uuid())
+  name            String
+  description     String?
+  status          String           @default("ativo") // ativo, inativo, pendente, deletado
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+  
+  usuarios        UsuarioSistema[]
+  associados      Associado[]
+  tiposPagamento  TipoPagamento[]
+
+  @@map("associacao")
+}
+
+model UsuarioSistema {
+  id            String      @id @default(uuid())
+  associacaoId  String?     @map("associacao_id")
+  name          String
+  email         String      @unique
+  password      String
+  role          String      @default("admin_associacao") // admin_associacao, super_admin
+  status        String      @default("pendente_aprovacao") // ativo, inativo, pendente_aprovacao, deletado
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+
+  associacao    Associacao? @relation(fields: [associacaoId], references: [id])
+
+  @@map("usuario_sistema")
+}
+
+model Associado {
+  id             String        @id @default(uuid())
+  associacaoId   String        @map("associacao_id")
+  registerNumber String        @map("register_number")
+  name           String
+  description    String?
+  status         String        @default("ativo") // ativo, inativo, suspenso, deletado
+  type           String // Fundador, Sócio, Honorário, Benemérito
+  entryDate      DateTime      @map("entry_date")
+  exitDate       DateTime?     @map("exit_date")
+  quote          Decimal       @default(0.00)
+  photo          String?
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  associacao     Associacao    @relation(fields: [associacaoId], references: [id])
+  qualificacao   Qualificacao?
+  contatos       Contato[]
+  enderecos      Endereco[]
+  pagamentos     Pagamento[]
+
+  @@unique([associacaoId, registerNumber])
+  @@map("associado")
+}
+
+model Qualificacao {
+  id          String    @id @default(uuid())
+  associadoId String    @unique @map("associado_id")
+  cpf         String?   @unique
+  rg          String?
+  birthdate   DateTime?
+  civilStatus String?   @map("civil_status")
+  nationality String?
+  profession  String?
+  sex         String?
+  fatherName  String?   @map("father_name")
+  motherName  String?   @map("mother_name")
+  spouseName  String?   @map("spouse_name")
+  status      String    @default("ativo")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  associado   Associado @relation(fields: [associadoId], references: [id])
+
+  @@map("qualificacao")
+}
+
+model Contato {
+  id          String   @id @default(uuid())
+  associadoId String   @map("associado_id")
+  type        String // email, telefone_celular, telefone_residencial, telefone_comercial
+  value       String
+  isPrimary   Boolean  @default(false) @map("is_primary")
+  status      String   @default("ativo")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  associado   Associado @relation(fields: [associadoId], references: [id])
+
+  @@map("contato")
+}
+
+model Endereco {
+  id          String   @id @default(uuid())
+  associadoId String   @map("associado_id")
+  logradouro  String
+  numero      String?
+  complemento String?
+  bairro      String
+  cep         String
+  cidade      String
+  uf          String
+  pais        String   @default("Brasil")
+  description String?
+  type        String   @default("residencial") // residencial, comercial, cobranca
+  isPrimary   Boolean  @default(false) @map("is_primary")
+  status      String   @default("ativo")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  associado   Associado @relation(fields: [associadoId], references: [id])
+
+  @@map("endereco")
+}
+
+model TipoPagamento {
+  id           String     @id @default(uuid())
+  associacaoId String     @map("associacao_id")
+  name         String
+  format       String?
+  description  String?
+  status       String     @default("ativo")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  associacao   Associacao @relation(fields: [associacaoId], references: [id])
+  pagamentos   Pagamento[]
+
+  @@map("tipo_pagamento")
+}
+
+model Pagamento {
+  id              String        @id @default(uuid())
+  associadoId     String        @map("associado_id")
+  tipoPagamentoId String        @map("tipo_pagamento_id")
+  paymentDate     DateTime      @map("payment_date")
+  valueUnit       Decimal       @map("value_unit")
+  quantity        Int           @default(1)
+  totalValue      Decimal       @map("total_value")
+  description     String?
+  status          String        @default("pendente") // pago, pendente, vencido, cancelado, deletado
+  dueDate         DateTime?     @map("due_date")
+  paidAt          DateTime?     @map("paid_at")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  associado       Associado     @relation(fields: [associadoId], references: [id])
+  tipoPagamento   TipoPagamento @relation(fields: [tipoPagamentoId], references: [id])
+
+  @@map("pagamento")
+}
