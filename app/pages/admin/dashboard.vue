@@ -5,8 +5,25 @@ definePageMeta({
 </script>
 
 <template>
-  <div class="p-4">
-    <h1 class="text-2xl font-bold">Painel Super Admin</h1>
-    <p>Bem-vindo ao gerenciamento da plataforma.</p>
+  <div>
+    <PageHeader 
+      title="Painel Super Admin" 
+      description="Bem-vindo ao gerenciamento da plataforma."
+    />
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <StatsCard
+        title="Associações"
+        value="-"
+        icon="i-lucide-building-2"
+        color="primary"
+      />
+      <StatsCard
+        title="Usuários Sistema"
+        value="-"
+        icon="i-lucide-users"
+        color="secondary"
+      />
+    </div>
   </div>
 </template>

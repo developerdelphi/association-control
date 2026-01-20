@@ -11,6 +11,7 @@ definePageMeta({
 const isOpen = ref(false)
 const isEditing = ref(false)
 const selectedId = ref<string | null>(null)
+const sorting = ref([])
 
 const state = reactive({
   name: '',
@@ -96,9 +97,48 @@ const confirmDelete = async (row: any) => {
 }
 
 const columns = [
-  { accessorKey: 'name', header: 'Nome' },
-  { accessorKey: 'email', header: 'Email' },
-  { accessorKey: 'role', header: 'Função' },
+  { 
+    accessorKey: 'name', 
+    header: ({ column }: any) => {
+      const isSorted = column.getIsSorted()
+      return h(UButton, {
+        color: 'neutral',
+        variant: 'ghost',
+        label: 'Nome',
+        icon: isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down',
+        class: '-mx-2.5',
+        onClick: () => column.toggleSorting(column.getIsSorted() === 'asc')
+      })
+    }
+  },
+  { 
+    accessorKey: 'email', 
+    header: ({ column }: any) => {
+      const isSorted = column.getIsSorted()
+      return h(UButton, {
+        color: 'neutral',
+        variant: 'ghost',
+        label: 'Email',
+        icon: isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down',
+        class: '-mx-2.5',
+        onClick: () => column.toggleSorting(column.getIsSorted() === 'asc')
+      })
+    }
+  },
+  { 
+    accessorKey: 'role', 
+    header: ({ column }: any) => {
+      const isSorted = column.getIsSorted()
+      return h(UButton, {
+        color: 'neutral',
+        variant: 'ghost',
+        label: 'Função',
+        icon: isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down',
+        class: '-mx-2.5',
+        onClick: () => column.toggleSorting(column.getIsSorted() === 'asc')
+      })
+    }
+  },
   { 
     accessorKey: 'associacao.name', 
     header: 'Associação',
@@ -107,7 +147,20 @@ const columns = [
       return name ? h('span', name) : h('span', { class: 'text-gray-400 italic' }, 'N/A')
     }
   },
-  { accessorKey: 'status', header: 'Status' },
+  { 
+    accessorKey: 'status', 
+    header: ({ column }: any) => {
+      const isSorted = column.getIsSorted()
+      return h(UButton, {
+        color: 'neutral',
+        variant: 'ghost',
+        label: 'Status',
+        icon: isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down',
+        class: '-mx-2.5',
+        onClick: () => column.toggleSorting(column.getIsSorted() === 'asc')
+      })
+    }
+  },
   { 
     id: 'actions', 
     header: 'Ações',
@@ -148,13 +201,18 @@ const associacoesOptions = computed(() => {
 
 <template>
   <div>
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold">Gestão de Usuários</h1>
-      <UButton icon="i-lucide-plus" label="Novo Usuário" @click="openCreate" />
-    </div>
+    <PageHeader 
+      title="Gestão de Usuários" 
+      description="Gerencie os administradores e usuários da plataforma."
+    >
+      <template #actions>
+        <UButton icon="i-lucide-plus" label="Novo Usuário" @click="openCreate" />
+      </template>
+    </PageHeader>
 
     <UCard>
       <UTable 
+        v-model:sorting="sorting"
         :data="users" 
         :columns="columns" 
         :loading="status === 'pending'"

@@ -107,10 +107,14 @@ const save = async () => {
 
 <template>
   <div class="max-w-4xl mx-auto">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold">Editar Associado</h1>
-      <UButton label="Voltar" variant="ghost" to="/app/associados" />
-    </div>
+    <PageHeader 
+        title="Editar Associado" 
+        description="Atualize os dados do associado."
+    >
+        <template #actions>
+            <UButton label="Voltar" variant="ghost" to="/app/associados" />
+        </template>
+    </PageHeader>
 
     <div v-if="pending" class="flex justify-center py-8">
         <UIcon name="i-lucide-loader-2" class="animate-spin text-2xl" />

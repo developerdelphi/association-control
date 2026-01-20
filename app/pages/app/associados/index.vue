@@ -8,6 +8,7 @@ definePageMeta({
 })
 
 const r = useRouter()
+const sorting = ref([])
 
 const openCreate = () => {
     r.push('/app/associados/novo')
@@ -32,10 +33,62 @@ const confirmDelete = async (row: any) => {
 }
 
 const columns = [
-  { accessorKey: 'name', header: 'Nome' },
-  { accessorKey: 'registerNumber', header: 'Matrícula' },
-  { accessorKey: 'type', header: 'Tipo' },
-  { accessorKey: 'status', header: 'Status' },
+  { 
+    accessorKey: 'name', 
+    header: ({ column }: any) => {
+      const isSorted = column.getIsSorted()
+      return h(UButton, {
+        color: 'neutral',
+        variant: 'ghost',
+        label: 'Nome',
+        icon: isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down',
+        class: '-mx-2.5',
+        onClick: () => column.toggleSorting(column.getIsSorted() === 'asc')
+      })
+    }
+  },
+  { 
+    accessorKey: 'registerNumber', 
+    header: ({ column }: any) => {
+      const isSorted = column.getIsSorted()
+      return h(UButton, {
+        color: 'neutral',
+        variant: 'ghost',
+        label: 'Matrícula',
+        icon: isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down',
+        class: '-mx-2.5',
+        onClick: () => column.toggleSorting(column.getIsSorted() === 'asc')
+      })
+    }
+  },
+  { 
+    accessorKey: 'type', 
+    header: ({ column }: any) => {
+      const isSorted = column.getIsSorted()
+      return h(UButton, {
+        color: 'neutral',
+        variant: 'ghost',
+        label: 'Tipo',
+        icon: isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down',
+        class: '-mx-2.5',
+        onClick: () => column.toggleSorting(column.getIsSorted() === 'asc')
+      })
+    }
+  },
+  { 
+    accessorKey: 'status', 
+    header: ({ column }: any) => {
+      const isSorted = column.getIsSorted()
+      return h(UButton, {
+        color: 'neutral',
+        variant: 'ghost',
+        label: 'Status',
+        icon: isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down',
+        class: '-mx-2.5',
+        onClick: () => column.toggleSorting(column.getIsSorted() === 'asc')
+      })
+    }
+  },
   { 
     id: 'actions', 
     header: 'Ações',
@@ -65,13 +118,18 @@ const { data: associados, refresh, status } = await useFetch('/api/app/associado
 
 <template>
   <div>
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold">Associados</h1>
-      <UButton icon="i-lucide-plus" label="Novo Associado" @click="openCreate" />
-    </div>
+    <PageHeader 
+        title="Associados" 
+        description="Lista de todos os associados vinculados."
+    >
+        <template #actions>
+            <UButton icon="i-lucide-plus" label="Novo Associado" @click="openCreate" />
+        </template>
+    </PageHeader>
 
     <UCard>
       <UTable 
+        v-model:sorting="sorting"
         :data="associados" 
         :columns="columns"
         :loading="status === 'pending'" 

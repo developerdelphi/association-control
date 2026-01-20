@@ -71,10 +71,14 @@ const save = async () => {
 
 <template>
   <div class="max-w-4xl mx-auto">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold">Novo Associado</h1>
-      <UButton label="Voltar" variant="ghost" to="/app/associados" />
-    </div>
+    <PageHeader 
+        title="Novo Associado" 
+        description="Cadastre um novo associado no sistema."
+    >
+        <template #actions>
+            <UButton label="Voltar" variant="ghost" to="/app/associados" />
+        </template>
+    </PageHeader>
 
     <form @submit.prevent="save" class="space-y-6">
       
