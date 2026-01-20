@@ -7,18 +7,40 @@ export default defineEventHandler(async (event) => {
   }
 
   const query = getQuery(event)
-  // Pagination and filtering can be added here
+  const page = parseInt(query.page as string) || 1
+  const pageSize = parseInt(query.pageSize as string) || 10
+  const search = (query.search as string) || ''
   
-  const associados = await prisma.associado.findMany({
-    where: {
-      associacaoId: user.associacaoId,
-      status: { not: 'deletado' }
-    },
-    orderBy: { name: 'asc' },
-    include: {
-        contatos: true // Include contacts for list/export
-    }
-  })
+  const where: any = {
+    associacaoId: user.associacaoId,
+    status: { not: 'deletado' }
+  }
 
-  return associados
+  if (search) {
+      where.OR = [
+          { name: { contains: search } },
+          { registerNumber: { contains: search } }
+      ]
+  }
+
+  const [associados, total] = await Promise.all([
+      prisma.associado.findMany({
+        where,
+        orderBy: { name: 'asc' },
+        include: {
+            contatos: true
+        },
+        skip: (page - 1) * pageSize,
+        take: pageSize
+      }),
+      prisma.associado.count({ where })
+  ])
+
+  return {
+    data: associados,
+    total,
+    page,
+    pageSize,
+    totalPages: Math.ceil(total / pageSize)
+  }
 })

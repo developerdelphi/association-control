@@ -60,7 +60,7 @@ const save = async () => {
   try {
     const payload = { ...state }
     // Clean AssociacaoId if not selected
-    if (!payload.associacaoId) payload.associacaoId = null
+    if (!payload.associacaoId) payload.associacaoId = undefined
 
     if (isEditing.value && selectedId.value) {
       await $fetch(`/api/admin/usuarios/${selectedId.value}`, {
@@ -183,8 +183,28 @@ const columns = [
   }
 ]
 
+const page = ref(1)
+const pageCount = ref(10)
+const search = ref('')
+
+// Debounce search
+const searchDebounced = ref('')
+let timeout: NodeJS.Timeout
+watch(search, (newVal) => {
+  clearTimeout(timeout)
+  timeout = setTimeout(() => {
+    searchDebounced.value = newVal
+    page.value = 1
+  }, 500)
+})
+
 const { data: users, refresh, status } = await useFetch('/api/admin/usuarios', {
-  default: () => []
+  query: {
+    page,
+    pageSize: pageCount,
+    search: searchDebounced
+  },
+  default: () => ({ data: [], total: 0, page: 1, pageSize: 10, totalPages: 0 })
 })
 const { data: associacoes } = await useFetch('/api/admin/associacoes', {
   default: () => []
@@ -210,14 +230,26 @@ const associacoesOptions = computed(() => {
       </template>
     </PageHeader>
 
-    <UCard>
-      <UTable 
-        v-model:sorting="sorting"
-        :data="users" 
-        :columns="columns" 
-        :loading="status === 'pending'"
-      />
-    </UCard>
+    <div class="flex flex-col gap-4">
+      <div class="flex justify-between items-center gap-4">
+        <UInput v-model="search" icon="i-lucide-search" placeholder="Buscar..." class="w-full md:w-64" />
+      </div>
+
+      <UCard>
+        <UTable 
+          v-model:sorting="sorting"
+          :data="users?.data || []" 
+          :columns="columns" 
+          :loading="status === 'pending'"
+        />
+        <div class="flex justify-between items-center px-4 py-3 border-t">
+          <span class="text-sm text-gray-500">
+            Total: {{ users?.total || 0 }}
+          </span>
+          <UPagination v-model="page" :page-count="pageCount" :total="users?.total || 0" />
+        </div>
+      </UCard>
+    </div>
 
     <UModal v-model:open="isOpen" :title="isEditing ? 'Editar Usuário' : 'Novo Usuário'">
       <template #body>

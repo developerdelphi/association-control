@@ -15,6 +15,20 @@ model Associacao {
   createdAt       DateTime         @default(now()) @map("created_at")
   updatedAt       DateTime         @updatedAt @map("updated_at")
   
+  // New Fields
+  cnpj            String?          @unique
+  foundationDate  DateTime?        @map("foundation_date")
+  logo            String?          // Base64
+  
+  // Address Fields
+  zipCode         String?          @map("zip_code")
+  street          String?
+  number          String?
+  complement      String?
+  neighborhood    String?
+  city            String?
+  state           String? 
+  
   usuarios        UsuarioSistema[]
   associados      Associado[]
   tiposPagamento  TipoPagamento[]

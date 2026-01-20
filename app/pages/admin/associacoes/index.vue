@@ -130,8 +130,28 @@ const columns = [
   }
 ]
 
+const page = ref(1)
+const pageCount = ref(10)
+const search = ref('')
+
+// Debounce search
+const searchDebounced = ref('')
+let timeout: NodeJS.Timeout
+watch(search, (newVal) => {
+  clearTimeout(timeout)
+  timeout = setTimeout(() => {
+    searchDebounced.value = newVal
+    page.value = 1 // Reset to first page on search
+  }, 500)
+})
+
 const { data: associacoes, refresh, status } = await useFetch('/api/admin/associacoes', {
-  default: () => []
+  query: {
+    page,
+    pageSize: pageCount,
+    search: searchDebounced
+  },
+  default: () => ({ data: [], total: 0, page: 1, pageSize: 10, totalPages: 0 })
 })
 const toast = useToast()
 
@@ -148,14 +168,26 @@ const toast = useToast()
       </template>
     </PageHeader>
 
-    <UCard>
-      <UTable 
-        v-model:sorting="sorting"
-        :data="associacoes" 
-        :columns="columns"
-        :loading="status === 'pending'"
-      />
-    </UCard>
+    <div class="flex flex-col gap-4">
+      <div class="flex justify-between items-center gap-4">
+        <UInput v-model="search" icon="i-lucide-search" placeholder="Buscar..." class="w-full md:w-64" />
+      </div>
+
+      <UCard>
+        <UTable 
+          v-model:sorting="sorting"
+          :data="associacoes?.data || []" 
+          :columns="columns"
+          :loading="status === 'pending'"
+        />
+        <div class="flex justify-between items-center px-4 py-3 border-t">
+          <span class="text-sm text-gray-500">
+            Total: {{ associacoes?.total || 0 }}
+          </span>
+          <UPagination v-model="page" :page-count="pageCount" :total="associacoes?.total || 0" />
+        </div>
+      </UCard>
+    </div>
 
     <UModal v-model:open="isOpen" :title="isEditing ? 'Editar Associação' : 'Nova Associação'">
       <template #body>

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 const links = [
   { label: 'Dashboard', to: '/app/dashboard', icon: 'i-lucide-layout-dashboard' },
-  { label: 'Associados', to: '/app/associados', icon: 'i-lucide-users' }
+  { label: 'Associados', to: '/app/associados', icon: 'i-lucide-users' },
+  { label: 'Configurações', to: '/app/configuracoes', icon: 'i-lucide-settings' }
 ]
 </script>
 

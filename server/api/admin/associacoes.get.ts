@@ -8,14 +8,36 @@ export default defineEventHandler(async (event) => {
   }
 
   const query = getQuery(event)
-  // Simple pagination logic could be added here
-  
-  const associacoes = await prisma.associacao.findMany({
-    orderBy: { createdAt: 'desc' },
-    where: {
-      status: { not: 'deletado' } // By default hide deleted? Or show with status filter?
-    }
-  })
+  const page = parseInt(query.page as string) || 1
+  const pageSize = parseInt(query.pageSize as string) || 10
+  const search = (query.search as string) || ''
 
-  return associacoes
+  const where: any = {
+    status: { not: 'deletado' }
+  }
+
+  if (search) {
+      where.OR = [
+          { name: { contains: search } },
+          { description: { contains: search } }
+      ]
+  }
+
+  const [associacoes, total] = await Promise.all([
+      prisma.associacao.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize
+      }),
+      prisma.associacao.count({ where })
+  ])
+
+  return {
+      data: associacoes,
+      total,
+      page,
+      pageSize,
+      totalPages: Math.ceil(total / pageSize)
+  }
 })
