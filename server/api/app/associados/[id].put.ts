@@ -108,7 +108,7 @@ export default defineEventHandler(async (event) => {
   if (body.contatos) {
       updateData.contatos = {
           deleteMany: {},
-          create: body.contatos.map((c: any) => ({
+          create: body.contatos.filter((c: any) => c.value && c.value.trim()).map((c: any) => ({
               type: c.type,
               value: c.value,
               isPrimary: c.isPrimary
@@ -119,7 +119,7 @@ export default defineEventHandler(async (event) => {
   if (body.enderecos) {
       updateData.enderecos = {
           deleteMany: {},
-          create: body.enderecos.map((e: any) => ({
+          create: body.enderecos.filter((e: any) => e.logradouro && e.cidade && e.cep).map((e: any) => ({
               logradouro: e.logradouro,
               numero: e.numero,
               complemento: e.complemento,

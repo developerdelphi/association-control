@@ -141,6 +141,14 @@ const { data: associados, refresh, status } = await useFetch('/api/app/associado
   },
   default: () => ({ data: [], total: 0, page: 1, pageSize: 10, totalPages: 0 })
 })
+
+watch([page, pageCount, searchDebounced], () => {
+  refresh()
+})
+
+watch(pageCount, () => {
+    page.value = 1
+})
 </script>
 
 <template>
@@ -167,10 +175,7 @@ const { data: associados, refresh, status } = await useFetch('/api/app/associado
           :loading="status === 'pending'" 
         />
         <div class="flex justify-between items-center px-4 py-3 border-t">
-          <span class="text-sm text-gray-500">
-            Total: {{ associados?.total || 0 }}
-          </span>
-          <UPagination v-model="page" :page-count="pageCount" :total="associados?.total || 0" />
+          <UPagination v-model:page="page" :page-count="pageCount" :total="associados?.total || 0" />
         </div>
       </UCard>
     </div>

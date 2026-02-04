@@ -88,16 +88,16 @@ export default defineEventHandler(async (event) => {
           }
       } : undefined,
 
-      contatos: body.contatos && body.contatos.length ? {
-          create: body.contatos.map((c: any) => ({
+      contatos: body.contatos && body.contatos.filter((c: any) => c.value && c.value.trim()).length ? {
+          create: body.contatos.filter((c: any) => c.value && c.value.trim()).map((c: any) => ({
               type: c.type,
               value: c.value,
               isPrimary: c.isPrimary || false
           }))
       } : undefined,
 
-      enderecos: body.enderecos && body.enderecos.length ? {
-          create: body.enderecos.map((e: any) => ({
+      enderecos: body.enderecos && body.enderecos.filter((e: any) => e.logradouro && e.cidade && e.cep).length ? {
+          create: body.enderecos.filter((e: any) => e.logradouro && e.cidade && e.cep).map((e: any) => ({
               logradouro: e.logradouro,
               numero: e.numero,
               complemento: e.complemento,

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { definePageMeta } from '#imports'
 import { validateCPF } from '~/utils/validators'
+import { fetchCEP } from '~/utils/cep'
 
 definePageMeta({
   layout: 'admin-association'
@@ -69,6 +70,22 @@ const removeAddress = (index: number) => {
     state.enderecos.splice(index, 1)
 }
 
+const handleCepLookup = async (index: number) => {
+    const addr = state.enderecos[index]
+    if (!addr.cep) return
+    
+    const cleanCep = addr.cep.replace(/\D/g, '')
+    if (cleanCep.length === 8) {
+        const data = await fetchCEP(cleanCep)
+        if (data) {
+            addr.logradouro = data.logradouro
+            addr.bairro = data.bairro
+            addr.cidade = data.localidade
+            addr.uf = data.uf
+        }
+    }
+}
+
 const onFileChange = (e: any) => {
     const file = e.target.files[0]
     if (file) {
@@ -111,6 +128,22 @@ const save = async () => {
   if (state.qualificacao.cpf && !validateCPF(state.qualificacao.cpf)) {
       toast.add({ title: 'Erro', description: 'CPF inválido', color: 'error' })
       return
+  }
+
+  // Contatos Validation
+  for (const contact of state.contatos) {
+      if (!contact.value || contact.value.trim() === '') {
+          toast.add({ title: 'Erro', description: 'Todos os contatos adicionados devem ser preenchidos.', color: 'error' })
+          return
+      }
+  }
+
+  // Endereços Validation
+  for (const addr of state.enderecos) {
+      if (!addr.logradouro || !addr.cidade || !addr.cep) {
+          toast.add({ title: 'Erro', description: 'Endereços devem ter logradouro, cidade e CEP preenchidos.', color: 'error' })
+          return
+      }
   }
 
   try {
@@ -260,6 +293,14 @@ const save = async () => {
               <UFormField label="Status" class="w-1/4">
                   <USelect v-model="contact.status" :items="['ativo', 'inativo']" class="w-full" />
               </UFormField>
+              <UButton 
+                icon="i-lucide-trash" 
+                color="error" 
+                variant="ghost" 
+                size="xs" 
+                class="mb-1"
+                @click="removeContact(index)"
+              />
           </div>
           <p v-if="state.contatos.length === 0" class="text-gray-400 text-sm italic">Nenhum contato adicionado.</p>
       </UCard>
@@ -274,10 +315,18 @@ const save = async () => {
           </template>
           
           <div v-for="(addr, index) in state.enderecos" :key="index" class="p-4 border rounded mb-4 relative">
+              <UButton 
+                icon="i-lucide-trash" 
+                color="error" 
+                variant="ghost" 
+                size="xs" 
+                class="absolute top-2 right-2"
+                @click="removeAddress(index)"
+              />
               <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <UFormField label="CEP">
-                      <UInput v-model="addr.cep" v-maska="'#####-###'" class="w-full" />
-                  </UFormField>
+                   <UFormField label="CEP">
+                       <UInput v-model="addr.cep" v-maska="'#####-###'" class="w-full" @input="handleCepLookup(index)" />
+                   </UFormField>
                   <UFormField label="Logradouro" class="md:col-span-3">
                       <UInput v-model="addr.logradouro" class="w-full" />
                   </UFormField>
