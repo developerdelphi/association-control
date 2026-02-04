@@ -8,71 +8,64 @@ datasource db {
 }
 
 model Associacao {
-  id              String           @id @default(uuid())
-  name            String
-  description     String?
-  status          String           @default("ativo") // ativo, inativo, pendente, deletado
-  createdAt       DateTime         @default(now()) @map("created_at")
-  updatedAt       DateTime         @updatedAt @map("updated_at")
-  
-  // New Fields
-  cnpj            String?          @unique
-  foundationDate  DateTime?        @map("foundation_date")
-  logo            String?          // Base64
-  
-  // Address Fields
-  zipCode         String?          @map("zip_code")
-  street          String?
-  number          String?
-  complement      String?
-  neighborhood    String?
-  city            String?
-  state           String? 
-  
-  usuarios        UsuarioSistema[]
-  associados      Associado[]
-  tiposPagamento  TipoPagamento[]
+  id             String           @id @default(uuid())
+  name           String
+  description    String?
+  status         String           @default("ativo")
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  city           String?
+  cnpj           String?          @unique
+  complement     String?
+  foundationDate DateTime?        @map("foundation_date")
+  logo           String?
+  neighborhood   String?
+  number         String?
+  state          String?
+  street         String?
+  zipCode        String?          @map("zip_code")
+  associados     Associado[]
+  tiposPagamento TipoPagamento[]
+  usuarios       UsuarioSistema[]
 
   @@map("associacao")
 }
 
 model UsuarioSistema {
-  id            String      @id @default(uuid())
-  associacaoId  String?     @map("associacao_id")
-  name          String
-  email         String      @unique
-  password      String
-  role          String      @default("admin_associacao") // admin_associacao, super_admin
-  status        String      @default("pendente_aprovacao") // ativo, inativo, pendente_aprovacao, deletado
-  createdAt     DateTime    @default(now()) @map("created_at")
-  updatedAt     DateTime    @updatedAt @map("updated_at")
-
-  associacao    Associacao? @relation(fields: [associacaoId], references: [id])
+  id           String      @id @default(uuid())
+  associacaoId String?     @map("associacao_id")
+  name         String
+  email        String      @unique
+  password     String
+  role         String      @default("admin_associacao")
+  status       String      @default("pendente_aprovacao")
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+  associacao   Associacao? @relation(fields: [associacaoId], references: [id])
 
   @@map("usuario_sistema")
 }
 
 model Associado {
-  id             String        @id @default(uuid())
-  associacaoId   String        @map("associacao_id")
-  registerNumber String        @map("register_number")
+  id             String          @id @default(uuid())
+  associacaoId   String          @map("associacao_id")
+  registerNumber String          @map("register_number")
   name           String
   description    String?
-  status         String        @default("ativo") // ativo, inativo, suspenso, deletado
-  type           String // Fundador, Sócio, Honorário, Benemérito
-  entryDate      DateTime      @map("entry_date")
-  exitDate       DateTime?     @map("exit_date")
-  quote          Decimal       @default(0.00)
+  status         String          @default("ativo")
+  type           String
+  entryDate      DateTime        @map("entry_date")
+  exitDate       DateTime?       @map("exit_date")
+  quote          Decimal         @default(0.00)
   photo          String?
-  createdAt      DateTime      @default(now()) @map("created_at")
-  updatedAt      DateTime      @updatedAt @map("updated_at")
-
-  associacao     Associacao    @relation(fields: [associacaoId], references: [id])
-  qualificacao   Qualificacao?
-  dadosBancarios DadosBancarios?
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+  associacao     Associacao      @relation(fields: [associacaoId], references: [id])
   contatos       Contato[]
+  dadosBancarios DadosBancarios?
   enderecos      Endereco[]
   pagamentos     Pagamento[]
+  qualificacao   Qualificacao?
 
   @@unique([associacaoId, registerNumber])
   @@map("associado")
@@ -88,60 +81,52 @@ model Qualificacao {
   nationality String?
   profession  String?
   sex         String?
-  
-  // Foreigner Fields
   isForeigner Boolean   @default(false) @map("is_foreigner")
   country     String    @default("Brasil")
   rne         String?
-
   fatherName  String?   @map("father_name")
   motherName  String?   @map("mother_name")
   spouseName  String?   @map("spouse_name")
   status      String    @default("ativo")
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
-
   associado   Associado @relation(fields: [associadoId], references: [id])
 
   @@map("qualificacao")
 }
 
 model DadosBancarios {
-  id                String   @id @default(uuid())
-  associadoId       String   @unique @map("associado_id")
-  
-  bdmDigitalAccount String?  @map("bdm_digital_account") // Email validation
+  id                String    @id @default(uuid())
+  associadoId       String    @unique @map("associado_id")
+  bdmDigitalAccount String?   @map("bdm_digital_account")
   bank              String?
   agency            String?
-  accountNumber     String?  @map("account_number")
-  
-  status            String   @default("ativo")
-  createdAt         DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime @updatedAt @map("updated_at")
-
+  accountNumber     String?   @map("account_number")
+  status            String    @default("ativo")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
   associado         Associado @relation(fields: [associadoId], references: [id])
-  
+
   @@map("dados_bancarios")
 }
 
 model Contato {
-  id          String   @id @default(uuid())
-  associadoId String   @map("associado_id")
-  type        String // email, telefone_celular, telefone_residencial, telefone_comercial
+  id          String    @id @default(uuid())
+  associadoId String    @map("associado_id")
+  type        String
   value       String
-  isPrimary   Boolean  @default(false) @map("is_primary")
-  status      String   @default("ativo")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
+  isPrimary   Boolean   @default(false) @map("is_primary")
+  status      String    @default("ativo")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
   associado   Associado @relation(fields: [associadoId], references: [id])
 
   @@map("contato")
 }
 
 model Endereco {
-  id          String   @id @default(uuid())
-  associadoId String   @map("associado_id")
+  id          String    @id @default(uuid())
+  associadoId String    @map("associado_id")
   logradouro  String
   numero      String?
   complemento String?
@@ -149,31 +134,29 @@ model Endereco {
   cep         String
   cidade      String
   uf          String
-  pais        String   @default("Brasil")
+  pais        String    @default("Brasil")
   description String?
-  type        String   @default("residencial") // residencial, comercial, cobranca
-  isPrimary   Boolean  @default(false) @map("is_primary")
-  status      String   @default("ativo")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
+  type        String    @default("residencial")
+  isPrimary   Boolean   @default(false) @map("is_primary")
+  status      String    @default("ativo")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
   associado   Associado @relation(fields: [associadoId], references: [id])
 
   @@map("endereco")
 }
 
 model TipoPagamento {
-  id           String     @id @default(uuid())
-  associacaoId String     @map("associacao_id")
+  id           String      @id @default(uuid())
+  associacaoId String      @map("associacao_id")
   name         String
   format       String?
   description  String?
-  status       String     @default("ativo")
-  createdAt    DateTime   @default(now()) @map("created_at")
-  updatedAt    DateTime   @updatedAt @map("updated_at")
-
-  associacao   Associacao @relation(fields: [associacaoId], references: [id])
+  status       String      @default("ativo")
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
   pagamentos   Pagamento[]
+  associacao   Associacao  @relation(fields: [associacaoId], references: [id])
 
   @@map("tipo_pagamento")
 }
@@ -187,14 +170,13 @@ model Pagamento {
   quantity        Int           @default(1)
   totalValue      Decimal       @map("total_value")
   description     String?
-  status          String        @default("pendente") // pago, pendente, vencido, cancelado, deletado
+  status          String        @default("pendente")
   dueDate         DateTime?     @map("due_date")
   paidAt          DateTime?     @map("paid_at")
   createdAt       DateTime      @default(now()) @map("created_at")
   updatedAt       DateTime      @updatedAt @map("updated_at")
-
-  associado       Associado     @relation(fields: [associadoId], references: [id])
   tipoPagamento   TipoPagamento @relation(fields: [tipoPagamentoId], references: [id])
+  associado       Associado     @relation(fields: [associadoId], references: [id])
 
   @@map("pagamento")
 }
