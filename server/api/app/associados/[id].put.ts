@@ -1,7 +1,7 @@
 
 export default defineEventHandler(async (event) => {
   const user = requireAuth(event)
-  const id = event.context.params?.id
+  const id = getRouterParam(event, 'id')
 
   if (!user.associacaoId) {
     throw createError({ statusCode: 403, statusMessage: 'Forbidden' })

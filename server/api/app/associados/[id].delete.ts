@@ -1,6 +1,6 @@
 
 export default defineEventHandler(async (event) => {
-  const session = await requireUserSession(event)
+  const user = requireAuth(event)
   const id = getRouterParam(event, 'id')
 
   // Verify if associate exists and belongs to the user's association (if applicable)
