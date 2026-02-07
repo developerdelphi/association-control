@@ -1,0 +1,39 @@
+/* Page and Layout Transitions */
+.page-enter-active,
+.page-leave-active,
+.layout-enter-active,
+.layout-leave-active {
+  transition: all 0.3s ease-in-out;
+}
+
+.page-enter-from,
+.page-leave-to,
+.layout-enter-from,
+.layout-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.page-enter-to,
+.page-leave-from,
+.layout-enter-to,
+.layout-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Table Transitions */
+.table-fade-enter-active,
+.table-fade-leave-active {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.table-fade-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.table-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}

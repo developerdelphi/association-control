@@ -6,7 +6,11 @@ export default defineNuxtConfig({
   srcDir: 'app/',
   compatibilityDate: '2024-11-27',
   devtools: { enabled: true },
-  modules: ['@nuxt/ui'],
+  modules: ['@nuxt/ui', 'motion-v/nuxt', '@vueuse/nuxt'],
+  app: {
+    pageTransition: { name: 'page', mode: 'out-in' },
+    layoutTransition: { name: 'layout', mode: 'out-in' }
+  },
   css: ['~/assets/css/main.css'],
   ui: {
     experimental: {

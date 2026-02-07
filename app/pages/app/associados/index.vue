@@ -168,13 +168,20 @@ watch(pageCount, () => {
       </div>
 
       <UCard>
-        <UTable 
-          v-model:sorting="sorting"
-          :data="associados?.data || []" 
-          :columns="columns"
-          :loading="status === 'pending'" 
-        />
-        <div class="flex justify-between items-center px-4 py-3 border-t">
+        <Transition name="table-fade" mode="out-in">
+          <div :key="page">
+            <UTable 
+              v-model:sorting="sorting"
+              :data="associados?.data || []" 
+              :columns="columns"
+              :loading="status === 'pending'" 
+            />
+          </div>
+        </Transition>
+        
+        <div 
+          class="flex justify-between items-center px-4 py-3 border-t"
+        >
           <UPagination v-model:page="page" :page-count="pageCount" :total="associados?.total || 0" />
         </div>
       </UCard>

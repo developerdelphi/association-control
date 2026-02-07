@@ -214,7 +214,7 @@ const save = async () => {
         description="Atualize os dados do associado."
     >
         <template #actions>
-            <UButton label="Ficha Cadastral" icon="i-heroicons-document-text" color="gray" variant="ghost" :to="`/app/associados/${route.params.id}/ficha`" />
+            <UButton label="Ficha Cadastral" icon="i-heroicons-document-text" color="neutral" variant="ghost" :to="`/app/associados/${route.params.id}/ficha`" />
             <UButton label="Voltar" variant="ghost" to="/app/associados" />
         </template>
     </PageHeader>
@@ -330,34 +330,41 @@ const save = async () => {
               </div>
           </template>
           
-          <div v-for="(contact, index) in state.contatos" :key="index" class="flex gap-4 mb-2 items-end">
-              <UFormField label="Tipo" class="w-1/3">
-                  <USelect 
-                    v-model="contact.type" 
-                    :items="[
-                        { label: 'Celular', value: 'telefone_celular' },
-                        { label: 'Telefone Residencial', value: 'telefone_residencial' },
-                        { label: 'Telefone Comercial', value: 'telefone_comercial' },
-                        { label: 'Email', value: 'email' }
-                    ]" 
-                    class="w-full" 
-                  />
-              </UFormField>
-              <UFormField label="Descrição" class="flex-1">
-                  <UInput v-model="contact.value" v-maska="contact.type.includes('telefone') || contact.type === 'celular' ? '(##) #####-####' : ''" class="w-full" />
-              </UFormField>
-              <UFormField label="Status" class="w-1/4">
-                  <USelect v-model="contact.status" :items="['ativo', 'inativo']" class="w-full" />
-              </UFormField>
-              <UButton 
-                icon="i-lucide-trash" 
-                color="error" 
-                variant="ghost" 
-                size="xs" 
-                class="mb-1"
-                @click="removeContact(index)"
-              />
-          </div>
+            <div 
+              v-for="(contact, index) in state.contatos" 
+              :key="index" 
+              v-motion
+              :initial="{ opacity: 0, x: -10 }"
+              :enter="{ opacity: 1, x: 0 }"
+              class="flex gap-4 mb-2 items-end w-full"
+            >
+                <UFormField label="Tipo" class="w-1/3">
+                    <USelect 
+                      v-model="contact.type" 
+                      :items="[
+                          { label: 'Celular', value: 'telefone_celular' },
+                          { label: 'Telefone Residencial', value: 'telefone_residencial' },
+                          { label: 'Telefone Comercial', value: 'telefone_comercial' },
+                          { label: 'Email', value: 'email' }
+                      ]" 
+                      class="w-full" 
+                    />
+                </UFormField>
+                <UFormField label="Descrição" class="flex-1">
+                    <UInput v-model="contact.value" v-maska="contact.type.includes('telefone') || contact.type === 'celular' ? '(##) #####-####' : ''" class="w-full" />
+                </UFormField>
+                <UFormField label="Status" class="w-1/4">
+                    <USelect v-model="contact.status" :items="['ativo', 'inativo']" class="w-full" />
+                </UFormField>
+                <UButton 
+                  icon="i-lucide-trash" 
+                  color="error" 
+                  variant="ghost" 
+                  size="xs" 
+                  class="mb-1 shrink-0"
+                  @click="removeContact(index)"
+                />
+            </div>
           <p v-if="state.contatos.length === 0" class="text-gray-400 text-sm italic">Nenhum contato adicionado.</p>
       </UCard>
 
@@ -370,45 +377,52 @@ const save = async () => {
               </div>
           </template>
           
-          <div v-for="(addr, index) in state.enderecos" :key="index" class="p-4 border rounded mb-4 relative">
-              <UButton 
-                icon="i-lucide-trash" 
-                color="error" 
-                variant="ghost" 
-                size="xs" 
-                class="absolute top-2 right-2"
-                @click="removeAddress(index)"
-              />
-              <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                   <UFormField label="CEP">
-                       <UInput v-model="addr.cep" v-maska="'#####-###'" class="w-full" @input="handleCepLookup(index)" />
-                   </UFormField>
-                  <UFormField label="Logradouro" class="md:col-span-3">
-                      <UInput v-model="addr.logradouro" class="w-full" />
-                  </UFormField>
-                  <UFormField label="Número">
-                      <UInput v-model="addr.numero" class="w-full" />
-                  </UFormField>
-                  <UFormField label="Complemento">
-                      <UInput v-model="addr.complemento" class="w-full" />
-                  </UFormField>
-                  <UFormField label="Bairro">
-                      <UInput v-model="addr.bairro" class="w-full" />
-                  </UFormField>
-                  <UFormField label="Cidade">
-                      <UInput v-model="addr.cidade" class="w-full" />
-                  </UFormField>
-                  <UFormField label="UF">
-                      <UInput v-model="addr.uf" class="w-full" />
-                  </UFormField>
-                  <UFormField label="País">
-                      <UInput v-model="addr.pais" class="w-full" />
-                  </UFormField>
-                  <UFormField label="Status">
-                      <USelect v-model="addr.status" :items="['ativo', 'inativo']" class="w-full" />
-                  </UFormField>
-              </div>
-          </div>
+            <div 
+              v-for="(addr, index) in state.enderecos" 
+              :key="index" 
+              v-motion
+              :initial="{ opacity: 0, y: 10 }"
+              :enter="{ opacity: 1, y: 0 }"
+              class="p-4 border border-gray-200 dark:border-gray-800 rounded-lg mb-4 relative block w-full"
+            >
+                <UButton 
+                  icon="i-lucide-trash" 
+                  color="error" 
+                  variant="ghost" 
+                  size="xs" 
+                  class="absolute top-2 right-2 z-10"
+                  @click="removeAddress(index)"
+                />
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 pr-8">
+                     <UFormField label="CEP">
+                         <UInput v-model="addr.cep" v-maska="'#####-###'" class="w-full" @input="handleCepLookup(index)" />
+                     </UFormField>
+                    <UFormField label="Logradouro" class="md:col-span-3">
+                        <UInput v-model="addr.logradouro" class="w-full" />
+                    </UFormField>
+                    <UFormField label="Número">
+                        <UInput v-model="addr.numero" class="w-full" />
+                    </UFormField>
+                    <UFormField label="Complemento">
+                        <UInput v-model="addr.complemento" class="w-full" />
+                    </UFormField>
+                    <UFormField label="Bairro">
+                        <UInput v-model="addr.bairro" class="w-full" />
+                    </UFormField>
+                    <UFormField label="Cidade">
+                        <UInput v-model="addr.cidade" class="w-full" />
+                    </UFormField>
+                    <UFormField label="UF">
+                        <UInput v-model="addr.uf" class="w-full" />
+                    </UFormField>
+                    <UFormField label="País">
+                        <UInput v-model="addr.pais" class="w-full" />
+                    </UFormField>
+                    <UFormField label="Status">
+                        <USelect v-model="addr.status" :items="['ativo', 'inativo']" class="w-full" />
+                    </UFormField>
+                </div>
+            </div>
           <p v-if="state.enderecos.length === 0" class="text-gray-400 text-sm italic">Nenhum endereço adicionado.</p>
       </UCard>
 
@@ -435,7 +449,7 @@ const save = async () => {
       </UCard>
 
       <div class="flex justify-end gap-4 pb-8">
-          <UButton to="/app/associados" color="gray" variant="ghost">Cancelar</UButton>
+          <UButton to="/app/associados" color="neutral" variant="ghost">Cancelar</UButton>
           <UButton type="submit" size="lg">Salvar Alterações</UButton>
       </div>
 
