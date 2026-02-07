@@ -1,75 +1,71 @@
-# Nuxt Minimal Starter
+# Associação Management System (v1)
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Um sistema moderno e robusto para gestão de associações, construído com as tecnologias mais recentes do ecossistema Vue/Nuxt. O projeto foca em uma experiência de usuário (UX) premium com animações fluidas e uma interface limpa e intuitiva.
 
-## Setup
+## 🚀 Tecnologias
 
-Make sure to install dependencies:
+- **Framework**: [Nuxt 4](https://nuxt.com/) (Compatibility Mode)
+- **UI Kit**: [Nuxt UI v4](https://ui.nuxt.com/) (baseado em Tailwind CSS v4 e Reka UI)
+- **Animações**: [Motion Vue](https://motion.dev/docs/vue) (motion-v) para transições orgânicas.
+- **ORM**: [Prisma](https://www.prisma.io/) com banco de dados SQLite.
+- **Estilização**: [Tailwind CSS v4](https://tailwindcss.com/) para design responsivo e moderno.
+- **Autenticação**: JWT (JsonWebToken) e Bcrypt.js para segurança de senhas.
+- **Linguagem**: TypeScript para maior segurança e produtividade.
 
-```bash
-# npm
-npm install
+## ✨ Funcionalidades Principais
 
-# pnpm
-pnpm install
+- **Gestão de Associados**: Cadastro completo incluindo qualificação (CPF/RG), endereços múltiplos, contatos e dados bancários.
+- **Controle Financeiro**: Gestão de pagamentos com diferentes tipos, status de pendência e histórico por associado.
+- **Painel Administrativo**: Visão geral com estatísticas e cards dinâmicos.
+- **Interface Premium**:
+  - Animações de subida e fade-in na troca de páginas e paginação de tabelas.
+  - Sidebar interativa e responsiva.
+  - Sistema de máscaras de entrada inteligente (Maska).
+- **Segurança**: Sistema de login com papéis de usuário (Admin/Editor) e fluxo de aprovação de novos usuários.
 
-# yarn
-yarn install
+## 📦 Instalação e Execução
 
-# bun
-bun install
-```
+Para rodar este projeto localmente, siga os passos abaixo:
 
-## Development Server
+1. **Clonar o repositório**:
+   ```bash
+   git clone https://github.com/seu-usuario/Asssociation-v1.git
+   cd Asssociation-v1
+   ```
 
-Start the development server on `http://localhost:3000`:
+2. **Instalar dependências**:
+   ```bash
+   npm install
+   ```
 
-```bash
-# npm
-npm run dev
+3. **Configurar variáveis de ambiente**:
+   Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis (exemplo):
+   ```env
+   DATABASE_URL="file:./dev.db"
+   JWT_SECRET="sua_chave_secreta_aqui"
+   ```
 
-# pnpm
-pnpm dev
+4. **Preparar o banco de dados**:
+   ```bash
+   npx prisma generate
+   npx prisma migrate dev
+   npx prisma db seed
+   ```
 
-# yarn
-yarn dev
+5. **Iniciar o servidor de desenvolvimento**:
+   ```bash
+   npm run dev
+   ```
 
-# bun
-bun run dev
-```
+## 🛠️ Estrutura do Projeto
 
-## Production
+- `app/`: Contém todo o frontend Nuxt (páginas, componentes, composables, assets).
+- `server/`: Contém a lógica de backend (API routes, middlewares, utilitários).
+- `prisma/`: Esquema do banco de dados e arquivos de migração.
 
-Build the application for production:
+## 📄 Licença
 
-```bash
-# npm
-npm run build
+Este projeto está sob a licença MIT. Consulte o arquivo [LICENSE](LICENSE) para mais detalhes.
 
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+---
+Desenvolvido com ❤️ por Leo.
